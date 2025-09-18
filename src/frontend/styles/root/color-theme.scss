@@ -1,0 +1,23 @@
+@use 'color-theme--light' as *;
+@use 'color-theme--dark' as *;
+
+[data-color-theme='light'],
+[data-color-theme='system'] {
+  &,
+  & ::backdrop {
+    @include color-theme--light;
+  }
+}
+
+[data-color-theme='dark'] {
+  &,
+  & ::backdrop {
+    @include color-theme--dark;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-color-theme][data-color-theme='system'] {
+    @include color-theme--dark;
+  }
+}

@@ -1,0 +1,72 @@
+/**
+ * Content Flow — Provides a consistent vertical rhythm for common content elements.
+ *
+ * `.content-flow` — Default spacing
+ */
+$exclude-class: 'exclude-from-flow';
+
+@mixin content-flow($size: m) {
+  > div,
+  > p,
+  > ul,
+  > ol,
+  > dl,
+  > img,
+  > svg,
+  > pre,
+  > blockquote,
+  > h1,
+  > h2,
+  > h3,
+  > h4,
+  > h5,
+  > h6 {
+    &:not(.#{$exclude-class}) {
+      margin-top: var(--content-flow__gap--#{$size});
+      margin-bottom: var(--content-flow__gap--#{$size});
+
+      &:first-child {
+        margin-top: 0;
+      }
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  > h1:not(.#{$exclude-class}) {
+    margin-top: var(--h1-gap--#{$size});
+  }
+  > h2:not(.#{$exclude-class}) {
+    margin-top: var(--h2-gap--#{$size});
+  }
+  > h3:not(.#{$exclude-class}) {
+    margin-top: var(--h3-gap--#{$size});
+  }
+  > h4:not(.#{$exclude-class}) {
+    margin-top: var(--h4-gap--#{$size});
+  }
+  > h5:not(.#{$exclude-class}) {
+    margin-top: var(--h5-gap--#{$size});
+  }
+  > h6:not(.#{$exclude-class}) {
+    margin-top: var(--h6-gap--#{$size});
+  }
+}
+
+.content-flow {
+  @include content-flow(m);
+
+  @each $size in (s, m, l) {
+    &.gap--#{$size} {
+      @include content-flow($size);
+    }
+  }
+
+  img,
+  svg {
+    max-width: 100%;
+    height: auto;
+  }
+}

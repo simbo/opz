@@ -1,0 +1,111 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - 'releases/v*.*.*'
+
+run-name: |
+  ${{ format('[{0}] {1}', github.workflow,  github.ref_name) }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: macos-latest
+    timeout-minutes: 20
+    steps:
+      - name: 🛎️ Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+          ref: ${{ github.ref_name }}
+
+      - name: 🚚 Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: 🛠️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          cache: 'pnpm'
+          node-version-file: '.nvmrc'
+
+      - name: 📦 Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 📦 Build DMG
+        run: pnpm run make
+
+      - name: 🧾 Prepare Release Properties
+        id: release
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Extract version from tag name
+          VERSION=$(echo "${{ github.ref_name }}" | sed -E 's/.*v([0-9]+\.[0-9]+\.[0-9]+)$/\1/')
+          if [[ "$VERSION" =~ [^0-9.] ]]; then
+            echo "::error title=Missing Version::Could not extract version from tag."
+            exit 1
+          fi
+
+          # Extract the respective version's section from the changelog and remove leading and trailing whitespace
+          CHANGELOG_FILE="CHANGELOG.md"
+          if [[ ! -f "$CHANGELOG_FILE" ]]; then
+            echo "::error title=Missing Changelog File::Not found: ${CHANGELOG_FILE}"
+            exit 1
+          fi
+          DESCRIPTION="$(
+            awk -v ver="## ${VERSION}" '
+              $0==ver {found=1; next}
+              found && /^##[[:space:]]/ {exit}
+              found {print}
+            ' "$CHANGELOG_FILE" \
+            | awk 'BEGIN{started=0} { if(!started){ if($0 ~ /[^[:space:]]/) started=1; else next } print }' \
+            | awk ' { lines[NR]=$0 } END { i=NR; while(i>0 && lines[i] ~ /^[[:space:]]*$/) i--; for(j=1;j<=i;j++) print lines[j] }'
+          )"
+          if [[ -z "${DESCRIPTION//[[:space:]]/}" ]]; then
+            echo "::error title=Missing Changelog Section::No section for ${VERSION} in ${CHANGELOG_FILE}"
+            exit 1
+          fi
+
+          # Find DMG in output directory
+          mapfile -t DMGS < <(find ./out/make -name '*.dmg' -type f)
+          if (( ${#DMGS[@]} == 0 )); then
+            echo "::error title=Missing DMG::No DMG found in ./out/make"
+            exit 1
+          elif (( ${#DMGS[@]} > 1 )); then
+            printf 'Found multiple DMGs:\n%s\n' "${DMGS[@]}" >&2
+            echo "::error title=Multiple DMGs::Expected exactly 1 DMG in ./out/make"
+            exit 1
+          fi
+          DMG_PATH="${DMGS[0]}"
+
+          RELEASE_DATE="$(TZ="Europe/Berlin" date +'%Y-%m-%d %H:%M:%S %Z')"
+
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "date=${RELEASE_DATE}" >> "$GITHUB_OUTPUT"
+          echo "dmg-path=${DMG_PATH}" >> "$GITHUB_OUTPUT"
+          {
+            echo "description<<__DESC__"
+            printf '%s\n' "$DESCRIPTION"
+            echo "__DESC__"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: 🎁 Create GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ github.ref_name }}
+          name: OpZ v${{ steps.release.outputs.version }}
+          body: |
+            _${{ steps.release.outputs.date }}_
+
+            ${{ steps.release.outputs.description }}
+          artifacts: ${{ steps.release.outputs.dmg-path }}
+          token: ${{ secrets.GH_PAT }}
+          makeLatest: true

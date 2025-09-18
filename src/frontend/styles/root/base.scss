@@ -1,0 +1,19 @@
+html {
+  font-family: var(--font--sans);
+  font-size: var(--font-size--root);
+  line-height: var(--line-height--default);
+  color: var(--color--default);
+  background-color: var(--bg-color--default);
+}
+
+:focus-visible {
+  outline: var(--focus-outline);
+}
+
+a {
+  color: var(--color--accent);
+
+  &[href]:not(:disabled) {
+    cursor: pointer;
+  }
+}

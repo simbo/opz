@@ -1,0 +1,11 @@
+engineStrict: true
+
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - electron
+  - electron-winstaller
+  - esbuild
+  - fs-xattr
+  - macos-alias
+
+verifyDepsBeforeRun: prompt

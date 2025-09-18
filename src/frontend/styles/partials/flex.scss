@@ -1,0 +1,42 @@
+%row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+%col {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  max-width: 100%;
+}
+
+@each $size in (xs, s, m, l, xl) {
+  %gap--#{$size} {
+    gap: var(--gap--#{$size});
+  }
+}
+
+.row {
+  @extend %row;
+}
+
+.col {
+  @extend %col;
+}
+
+.wrap {
+  flex-wrap: wrap;
+}
+
+.gap {
+  & {
+    @extend %gap--s;
+  }
+
+  @each $size in (xs, s, m, l, xl) {
+    &--#{$size} {
+      @extend %gap--#{$size};
+    }
+  }
+}

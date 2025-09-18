@@ -1,0 +1,90 @@
+@use 'flex';
+
+%message {
+  @extend %row;
+  align-items: flex-start;
+  line-height: var(--message__line-height);
+  gap: var(--message__gap);
+
+  > .icon {
+    padding-top: calc((var(--message__line-height) - 1) / 2 * 1em);
+  }
+}
+
+%message-box {
+  @extend %message;
+  padding: var(--message__padding--vertical) var(--message__padding--horizontal);
+  border: var(--message__border-width) solid transparent;
+  border-radius: var(--message__border-radius);
+}
+
+.message {
+  &,
+  &--default {
+    @extend %message;
+    color: var(--color--text);
+  }
+
+  &-box,
+  &-box--default {
+    @extend %message-box;
+    color: var(--color--text);
+    border-color: var(--border-color--emphasis);
+    background-color: var(--bg-color--neutral-muted);
+  }
+
+  &--error {
+    @extend %message;
+    color: var(--color--danger);
+  }
+  &-box--error {
+    @extend %message-box;
+    color: var(--color--danger);
+    border-color: var(--border-color--danger);
+    background-color: var(--bg-color--danger-muted);
+  }
+
+  &--warning {
+    @extend %message;
+    color: var(--color--attention);
+  }
+  &-box--warning {
+    @extend %message-box;
+    color: var(--color--attention);
+    border-color: var(--border-color--attention);
+    background-color: var(--bg-color--attention-muted);
+  }
+
+  &--info {
+    @extend %message;
+    color: var(--color--accent);
+  }
+  &-box--info {
+    @extend %message-box;
+    color: var(--color--accent);
+    border-color: var(--border-color--accent);
+    background-color: var(--bg-color--accent-muted);
+  }
+
+  &--success {
+    @extend %message;
+    color: var(--color--success);
+  }
+  &-box--success {
+    @extend %message-box;
+    color: var(--color--success);
+    border-color: var(--border-color--success);
+    background-color: var(--bg-color--success-muted);
+  }
+
+  &--done {
+    @extend %message;
+    color: var(--color--done);
+  }
+  &-box--done {
+    @extend %message-box;
+    color: var(--color--done);
+    border-color: var(--border-color--done);
+    background-color: var(--bg-color--done-muted);
+  }
+}

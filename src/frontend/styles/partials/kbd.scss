@@ -1,0 +1,23 @@
+@use 'mixins';
+
+kbd {
+  display: inline-block;
+  box-sizing: content-box;
+  min-width: 1em;
+  margin: 0 0.125em;
+  padding: 0.125em 0.375em 0.0625em;
+  border-radius: var(--border-radius--s);
+  text-align: center;
+  font-size: 0.8em;
+  font-family: var(--font--mono);
+  background-color: var(--kbd__bg-color);
+  box-shadow:
+    0.05em 0.05em 0.05em var(--kbd__drop-shadow-color),
+    0 0 0.1em var(--kbd__border-color) inset;
+  background-image:
+    linear-gradient(145deg, var(--kbd__concave-from-color), var(--kbd__concave-to-color)),
+    linear-gradient(180deg, var(--kbd__bevel-top-left-color) 0%, transparent 0.15em),
+    linear-gradient(90deg, var(--kbd__bevel-top-left-color) 0%, transparent 0.15em),
+    linear-gradient(0deg, var(--kbd__bevel-bottom-right-color) 0%, transparent 0.075em),
+    linear-gradient(270deg, var(--kbd__bevel-bottom-right-color) 0%, transparent 0.075em);
+}

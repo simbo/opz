@@ -1,0 +1,106 @@
+name: Release
+
+on:
+  repository_dispatch:
+    types: [release-changes]
+
+run-name: |
+  ${{ format('[{0}] {1}', github.workflow, github.event.client_payload.ref || github.ref_name) }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.client_payload.ref || github.ref_name }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: 🛎️ Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+          ref: ${{ github.event.client_payload.ref || github.ref_name }}
+          fetch-depth: 0
+
+      - name: 🚚 Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: 🛠️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          cache: 'pnpm'
+          node-version-file: '.nvmrc'
+
+      - name: 📦 Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🌀 Release
+        run: |
+          set -euo pipefail
+
+          # integrate changesets
+          pnpm exec changeset version
+
+          # update lockfile
+          pnpm install
+
+          # Abort if nothing changed
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "::error title=Nothing to Release::No file changes after integrating changesets."
+            exit 1
+          fi
+
+          # Determine the version from the package.json
+          version=$(jq -r '.version' package.json)
+          if [ -z "$version" ]; then
+            echo "::error title=Missing Version::Could not determine version from package.json."
+            exit 1
+          fi
+          if ! echo "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z\.-]+)?$'; then
+            echo "::error title=Invalid Version::package.json version '$version' is not valid semver."
+            exit 1
+          fi
+
+          # Set git user data
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
+
+          # Stage all changes
+          git add -A
+
+          # Prepare commit message
+          message="ci(release): v${version}"
+
+          # Commit the release
+          git commit -m "$message" --no-verify
+
+          # Prepare tag
+          tag="releases/v${version}"
+
+          # If tag exists remote or local, error
+          if git rev-parse -q --verify "refs/tags/${tag}" >/dev/null; then
+            echo "::error title=Tag exists locally::Tag ${tag} already exists locally; skipping tag creation.."
+            exit 1
+          fi
+          if git ls-remote --tags origin | grep -q "refs/tags/${tag}$"; then
+            echo "::error title=Tag exists on origin::Tag ${tag} already exists on origin; skipping tag creation."
+            exit 1
+          fi
+
+          # Push the changes
+          git push origin "${{ github.event.client_payload.ref || github.ref_name }}" --no-verify
+
+          # Create & push tag
+          git tag -a "${tag}" -m "v${version}"
+          git push origin "${tag}" --no-verify
+
+      - name: 🎉 Changes Released (Event)
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          event-type: changes-released
+          token: ${{ secrets.GH_PAT }}
+          client-payload: '{"ref": "${{ github.event.client_payload.ref || github.ref_name }}"}'

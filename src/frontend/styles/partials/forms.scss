@@ -1,0 +1,30 @@
+@use 'flex';
+@use 'typo';
+
+%label {
+  font-weight: var(--font-weight--semibold);
+}
+
+label {
+  @extend %label;
+
+  &[for] {
+    cursor: default;
+  }
+}
+
+.form {
+  @extend %col;
+  @extend %gap--xl;
+}
+
+.fieldset {
+  @extend %col;
+  @extend %gap--xs;
+  align-items: flex-start;
+
+  > p {
+    @extend %small--block;
+    @extend %muted;
+  }
+}

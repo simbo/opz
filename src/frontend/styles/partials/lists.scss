@@ -1,0 +1,82 @@
+@use 'flex';
+
+%list {
+  & & {
+    margin-top: var(--list__gap--default);
+  }
+
+  @each $size in (xs, s, m, l, xl) {
+    & &.gap--#{$size} {
+      margin-top: var(--gap--#{$size});
+    }
+  }
+}
+
+ul,
+ol {
+  @extend %list;
+  @extend %col;
+  gap: var(--gap--xs);
+  padding-left: calc(var(--line-height--default) * 1em);
+  list-style-position: outside;
+}
+
+/**
+ * Description Lists
+ */
+dl {
+  @extend %list;
+
+  /**
+   * Default grid layout for description lists
+   */
+  & {
+    display: grid;
+    grid-gap: var(--list__gap--default) clamp(0.5em, calc(var(--list__gap--default) + var(--list__gap--default)), 1em);
+    grid-template-columns: max-content;
+    max-width: 100%;
+
+    @each $size in (xs, s, m, l, xl) {
+      &.gap--#{$size} {
+        grid-gap: var(--gap--#{$size}) clamp(0.5em, calc(var(--gap--#{$size}) + var(--list__gap--default)), 1em);
+      }
+    }
+
+    & > dt {
+      max-width: 12em;
+    }
+
+    & > dd {
+      grid-column-start: 2;
+    }
+  }
+
+  /**
+   * Default styling for terms, can be disabled with `.dl--blank`
+   */
+  & > dt {
+    color: var(--color--muted);
+    font-weight: var(--font-weight--m);
+  }
+  &.dl--blank > dt {
+    color: inherit;
+    font-weight: inherit;
+  }
+
+  /**
+   * Add colon after term by default, can be disabled with `.dl--no-colon`
+   */
+  & > dt::after {
+    content: ':';
+  }
+  &.dl--no-colon > dt::after {
+    content: '';
+  }
+
+  /**
+   * Align terms to the right when using `.dl--aligned`
+   */
+  &.dl--aligned > dt {
+    text-align: right;
+  }
+}

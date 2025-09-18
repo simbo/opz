@@ -1,0 +1,14 @@
+/**
+ * Set box-sizing to border-box for all elements.
+ * Allow inheritance of box-sizing for easier overrides.
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+html {
+  box-sizing: border-box;
+}

@@ -1,0 +1,36 @@
+/**
+ * Native App Feeling
+ *
+ * These styles help to create a more native app-like experience by
+ * disabling certain default browser behaviors such as scrolling,
+ * text selection, and image dragging.
+ */
+
+/**
+ * Disable scrolling and scroll-bounce.
+ */
+html,
+body {
+  overscroll-behavior: none;
+  overflow: hidden;
+}
+
+/**
+ * Set default cursor for the entire app.
+ */
+html {
+  cursor: default;
+}
+
+*,
+*::before,
+*::after {
+  cursor: inherit;
+}
+
+/**
+ * Disable text selections for all elements by default.
+ */
+* {
+  user-select: none;
+}

@@ -1,0 +1,57 @@
+@use 'flex';
+
+.toc-menu {
+  @extend %col;
+  position: fixed;
+  gap: 0.5em;
+  width: 16em;
+
+  &__divider {
+    border-top: var(--border-width--s) solid var(--border-color--default);
+    margin: 0.25em 0;
+  }
+
+  &__icon {
+    font-size: calc(var(--line-height--s) * 1em);
+  }
+
+  &__link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1em;
+    padding: 0.5em 0.75em;
+    text-decoration: none;
+    font-size: var(--font-size--l);
+    border-radius: var(--border-radius--m);
+    color: var(--color--default);
+
+    &::before {
+      position: absolute;
+      left: -0.5em;
+      top: 12.5%;
+      content: '';
+      display: block;
+      width: 0.2em;
+      height: 75%;
+      background-color: transparent;
+      border-radius: var(--border-radius--m);
+    }
+
+    &:hover {
+      background-color: var(--bg-color--muted);
+    }
+
+    &--active {
+      background-color: var(--bg-color--neutral-muted);
+
+      &::before {
+        background-color: var(--bg-color--accent-emphasis);
+      }
+
+      > .toc-menu__label {
+        font-weight: var(--font-weight--semibold);
+      }
+    }
+  }
+}

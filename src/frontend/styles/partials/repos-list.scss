@@ -1,0 +1,62 @@
+@use 'mixins';
+
+$row-padding--v: 0.25em;
+$row-padding--h: 0.375em;
+$row-indent: 1em;
+
+.repos-list {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  &--empty {
+    padding: 2em;
+  }
+
+  &__label {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    max-width: 100%;
+    padding: $row-padding--h $row-padding--v;
+    border-bottom: var(--border-width--s) solid var(--border-color--default);
+
+    .icon {
+      flex-shrink: 0;
+    }
+
+    .repos-list__item--repo > & {
+      gap: var(--gap--s);
+    }
+
+    .repos-list__item--dir > .collapsible > .collapsible__label > & {
+      gap: var(--gap--xs);
+      background-color: var(--bg-color--muted);
+      color: var(--color--muted);
+
+      .icon {
+        transition: transform 0.1s ease;
+        transform: rotate(0deg);
+      }
+
+      &.is-open .icon {
+        transform: rotate(90deg);
+      }
+    }
+
+    $combined-selector: '';
+    @for $i from 1 through 10 {
+      $combined-selector: $combined-selector + ' .repos-list__children';
+      #{$combined-selector} > .repos-list__item--dir > .collapsible > .collapsible__label > &,
+      #{$combined-selector} > .repos-list__item--repo > & {
+        padding-left: ($i * $row-indent + $row-padding--h);
+      }
+    }
+  }
+
+  &__name {
+    @include mixins.code;
+    @include mixins.ellipsis;
+    flex-shrink: 1;
+  }
+}

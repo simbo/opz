@@ -1,0 +1,39 @@
+.control-bar {
+  display: flex;
+  align-items: center;
+
+  > .button,
+  > .button--icon-only,
+  > .button--default,
+  > .button--primary,
+  > .button--outline,
+  > .button--danger,
+  > .button--invisible,
+  > input[type='text'],
+  > input[type='email'],
+  > input[type='password'],
+  > input[type='number'],
+  > input[type='search'],
+  > select {
+    border-radius: 0;
+
+    &:first-child {
+      border-top-left-radius: var(--control__border-radius);
+      border-bottom-left-radius: var(--control__border-radius);
+    }
+
+    &:last-child {
+      border-top-right-radius: var(--control__border-radius);
+      border-bottom-right-radius: var(--control__border-radius);
+    }
+
+    &:not(:first-child) {
+      margin-left: calc(var(--control__border-width) * -1);
+    }
+
+    &:focus-visible,
+    &:hover {
+      z-index: 1;
+    }
+  }
+}

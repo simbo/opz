@@ -1,0 +1,32 @@
+@each $propKey in m, p {
+  $prop: if($propKey == 'm', margin, padding);
+
+  .#{$propKey} {
+    @each $size in xs, s, m, l, xl {
+      &-#{$size} {
+        #{$prop}: var(--gap--#{$size});
+      }
+
+      &x-#{$size} {
+        #{$prop}-left: var(--gap--#{$size});
+        #{$prop}-right: var(--gap--#{$size});
+      }
+      &y-#{$size} {
+        #{$prop}-top: var(--gap--#{$size});
+        #{$prop}-bottom: var(--gap--#{$size});
+      }
+      &t-#{$size} {
+        #{$prop}-top: var(--gap--#{$size});
+      }
+      &r-#{$size} {
+        #{$prop}-right: var(--gap--#{$size});
+      }
+      &b-#{$size} {
+        #{$prop}-bottom: var(--gap--#{$size});
+      }
+      &l-#{$size} {
+        #{$prop}-left: var(--gap--#{$size});
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+/**
+ * Summary Reset
+ */
+@mixin summary-reset {
+  list-style: none;
+  cursor: pointer;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  &::marker {
+    content: '';
+  }
+}

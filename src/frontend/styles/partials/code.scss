@@ -1,0 +1,21 @@
+@use 'mixins';
+
+code,
+samp,
+.code,
+.code--inline {
+  @include mixins.code;
+}
+
+pre,
+.code-block {
+  @include mixins.code-block;
+}
+
+code {
+  padding: 0.2em 0.4em;
+  font-size: 0.85em;
+  white-space: break-spaces;
+  background-color: var(--bg-color--neutral-muted, var(--color--neutral-muted));
+  border-radius: var(--border-radius--m);
+}

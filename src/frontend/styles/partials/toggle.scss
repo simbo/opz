@@ -1,0 +1,136 @@
+/* Basis-Variablen (anpassen, wenn gewünscht) */
+:root {
+  --toggle-w: 52px; /* macOS ca. 51–53px */
+  --toggle-h: 32px; /* macOS ca. 31–32px */
+  --toggle-p: 2px; /* Innenabstand (Track-Padding) */
+  --toggle-off: #e9e9ea; /* macOS Hell: Grey */
+  --toggle-on: #34c759; /* macOS System Green (Light) */
+  --toggle-on-dark: #30d158; /* macOS Green (Dark) */
+  --toggle-off-dark: #3a3a3c; /* macOS Dunkel: Grey */
+  --thumb: #ffffff;
+  --focus-ring: rgba(0, 122, 255, 0.45); /* macOS Blau-Glanz */
+  --shadow-track: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+  --shadow-thumb: 0 1px 3px rgba(0, 0, 0, 0.35), 0 0 0 0.5px rgba(0, 0, 0, 0.12);
+}
+
+// resets for default checkbox styles
+%reset-checkbox {
+  &::before {
+    top: auto;
+    left: auto;
+    width: auto;
+    height: auto;
+    border: none;
+    transform-origin: 50% 50% 0;
+    transform: none;
+    opacity: 1;
+  }
+
+  &:checked {
+    &::before {
+      opacity: 1;
+      transition: none;
+      animation: none;
+    }
+  }
+}
+
+input[type='checkbox'].toggle {
+  @extend %reset-checkbox;
+  --padding: 0.1428571429em;
+  --duration: 0.15s;
+  --easing: cubic-bezier(0.4, 0, 0.2, 1);
+  --squish-factor: 0.1428571429em;
+
+  &,
+  &.control--m {
+    --width: calc(var(--control__height--m) * 1.625);
+    --height: var(--control__height--m);
+  }
+
+  &.control--s {
+    --width: calc(var(--control__height--s) * 1.625);
+    --height: var(--control__height--s);
+  }
+
+  &.control--l {
+    --width: calc(var(--control__height--l) * 1.625);
+    --height: var(--control__height--l);
+  }
+
+  width: var(--width);
+  height: var(--height);
+  border-radius: var(--border-radius--pill);
+  overflow: hidden; // shadow or outline effects of the toggle handle should not be visible outside the toggle track
+
+  &::before {
+    --position: calc(var(--padding) / 2);
+    --size: calc(var(--height) - (var(--padding) * 2));
+
+    top: var(--position);
+    left: var(--position);
+    width: var(--size);
+    height: var(--size);
+    border-radius: var(--border-radius--circle);
+    background: var(--bg-color--default);
+    box-shadow: var(--shadow-thumb);
+    will-change: transform;
+  }
+
+  &:focus-visible,
+  &:hover {
+    background-color: var(--control__bg-color--hover);
+  }
+
+  &,
+  &:checked {
+    transition:
+      background-color var(--duration) var(--easing),
+      box-shadow var(--duration) var(--easing);
+
+    &::before {
+      transition:
+        transform var(--duration) var(--easing),
+        width var(--duration) var(--easing),
+        left var(--duration) var(--easing);
+    }
+  }
+
+  &:checked {
+    background-color: var(--toggle__bg-color--rest);
+
+    &:hover,
+    &:focus-visible {
+      background-color: var(--toggle__bg-color--hover);
+    }
+
+    &:active {
+      background-color: var(--toggle__bg-color--active);
+    }
+
+    &::before {
+      transform: translateX(calc(var(--width) - var(--height)));
+    }
+  }
+
+  &:disabled {
+    &:checked {
+      background-color: var(--toggle__bg-color--disabled);
+    }
+    &::before {
+      background-color: var(--bg-color--muted);
+    }
+  }
+
+  // slightly squash the thumb on active press
+  &:active:not(:disabled) {
+    &::before {
+      width: calc(var(--height) - 2 * var(--padding) + var(--squish-factor));
+    }
+    &:checked {
+      &::before {
+        transform: translateX(calc(var(--width) - (var(--height) + var(--squish-factor))));
+      }
+    }
+  }
+}

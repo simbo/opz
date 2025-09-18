@@ -1,0 +1,80 @@
+name: Checks
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+run-name: |
+  ${{ format('[{0}] {1}', github.workflow, github.event_name == 'push' && github.event.head_commit.message || github.event_name == 'pull_request' && github.event.pull_request.title || github.ref_name) }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: write
+
+jobs:
+  checks:
+    runs-on: macos-latest
+    timeout-minutes: 20
+    steps:
+      - name: 🛎️ Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - name: 🚚 Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: 🛠️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          cache: 'pnpm'
+          node-version-file: '.nvmrc'
+
+      - name: 📦 Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🧐 Run Checks
+        run: pnpm run check
+
+      - name: 📦 Build DMG
+        run: pnpm run make
+
+      - name: 📄 Check for Changesets
+        id: changesets
+        run: |
+          set -euo pipefail
+
+          # Check if there are any changesets present
+          HAS_CHANGESETS=$([[ -d .changeset ]] && find .changeset -type f -name '*.md' -print -quit | grep -q . && echo true || echo false)
+
+          echo "has-changesets=${HAS_CHANGESETS}" >> $GITHUB_OUTPUT
+
+      - name: 👮‍♂️ Pull Requests Must Have Changesets
+        if: >
+          github.event_name == 'pull_request' &&
+          github.event.pull_request.draft == false
+        run: |
+          set -euo pipefail
+
+          # Error if there are no changesets in the pull request
+          if [[ "${{ steps.changesets.outputs.has-changesets }}" != "true" ]]; then
+            echo "::error title=Missing Changeset::Pull requests must have changesets."
+            exit 1
+          fi
+
+      - name: 🎉 Release Changes (Event)
+        if: >
+          github.event_name == 'push' &&
+          steps.changesets.outputs.has-changesets == 'true'
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          event-type: release-changes
+          token: ${{ secrets.GH_PAT }}
+          client-payload: '{"ref": "${{ github.ref_name }}"}'

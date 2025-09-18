@@ -1,0 +1,5 @@
+# automatically includes entries from .gitignore
+
+pnpm-lock.yaml
+
+src/frontend/app/generics/icon/svg-icons/*.svg

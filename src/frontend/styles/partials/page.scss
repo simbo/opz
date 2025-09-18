@@ -1,0 +1,25 @@
+%page {
+  width: 1280px;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 3em 3em 6em 3em;
+}
+
+.page {
+  @extend %page;
+
+  &:has(> .page__sidebar):has(> .page__content) {
+    display: flex;
+    gap: 3em;
+  }
+
+  & > &__sidebar {
+    flex: 0 0 auto;
+    width: 16em;
+  }
+
+  & > &__content {
+    flex: 1 1 auto;
+    min-width: 16em;
+  }
+}
