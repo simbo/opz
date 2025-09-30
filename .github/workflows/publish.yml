@@ -75,7 +75,10 @@ jobs:
           fi
 
           # Find DMG in output directory
-          mapfile -t DMGS < <(find ./out/make -name '*.dmg' -type f)
+          DMGS=()
+          while IFS= read -r f; do
+            DMGS+=("$f")
+          done < <(find ./out/make -name '*.dmg' -type f)
           if (( ${#DMGS[@]} == 0 )); then
             echo "::error title=Missing DMG::No DMG found in ./out/make"
             exit 1
